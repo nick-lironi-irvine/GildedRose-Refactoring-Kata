@@ -74,6 +74,20 @@ describe('Gilded Rose', () => {
     });
 
     it.each([
+        ['Conjured'],
+      ]
+    )('should decrease Quality each day for conjured item "%s" that has not reached its SellIn limit', (itemName:string) => {
+      // Given
+      const gildedRose = new GildedRose([new Item(itemName, 1, 10)]);
+
+      // When
+      const items = gildedRose.updateQuality();
+
+      // Then
+      expect(items[0].sellIn).toBe(8);
+    })
+
+    it.each([
       ['Apples']
     ])('should decrease Quality each day for common item "%s" that has reached its SellIn limit', (itemName: string) => {
       // Given
@@ -85,6 +99,20 @@ describe('Gilded Rose', () => {
       // Then
       expect(items[0].quality).toBe(8);
     });
+
+    it.each([
+        ['Conjured'],
+      ]
+    )('should decrease Quality each day for conjured item "%s" that has reached its SellIn limit', (itemName:string) => {
+      // Given
+      const gildedRose = new GildedRose([new Item(itemName, 1, 10)]);
+
+      // When
+      const items = gildedRose.updateQuality();
+
+      // Then
+      expect(items[0].sellIn).toBe(6);
+    })
 
     it.each([
       ['Aged Brie']
