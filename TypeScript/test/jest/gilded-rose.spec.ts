@@ -84,7 +84,7 @@ describe('Gilded Rose', () => {
       const items = gildedRose.updateQuality();
 
       // Then
-      expect(items[0].sellIn).toBe(8);
+      expect(items[0].quality).toBe(8);
     })
 
     it.each([
@@ -105,13 +105,13 @@ describe('Gilded Rose', () => {
       ]
     )('should decrease Quality each day for conjured item "%s" that has reached its SellIn limit', (itemName:string) => {
       // Given
-      const gildedRose = new GildedRose([new Item(itemName, 1, 10)]);
+      const gildedRose = new GildedRose([new Item(itemName, 0, 10)]);
 
       // When
       const items = gildedRose.updateQuality();
 
       // Then
-      expect(items[0].sellIn).toBe(6);
+      expect(items[0].quality).toBe(6);
     })
 
     it.each([
@@ -187,7 +187,7 @@ describe('Gilded Rose', () => {
       ['Backstage passes to a TAFKAL80ETC concert', 3, 5 ],
       ['Backstage passes to a TAFKAL80ETC concert', 3, 1 ],
       ]
-    )('should increase quality for tickets by "%s" when there are "%s" days until the concert', (
+    )('should increase quality for "%s" by "%s" when there are "%s" days until the concert', (
       itemName:string, qualityChange: number, daysRemaining:number) => {
       // Given
       const initialQuality = 10;
