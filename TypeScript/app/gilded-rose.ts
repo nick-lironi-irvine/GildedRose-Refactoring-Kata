@@ -3,12 +3,14 @@ export class Item {
   sellIn: number;
   quality: number;
 
-  constructor(name, sellIn, quality) {
+  constructor(name:string, sellIn: number, quality: number) {
     this.name = name;
     this.sellIn = sellIn;
     this.quality = quality;
   }
 }
+
+const maximumItemQuality = 50;
 
 export class GildedRose {
   items: Array<Item>;
@@ -17,51 +19,79 @@ export class GildedRose {
     this.items = items;
   }
 
-  updateQuality() {
-    for (let i = 0; i < this.items.length; i++) {
-      if (this.items[i].name != 'Aged Brie' && this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-        if (this.items[i].quality > 0) {
-          if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-            this.items[i].quality = this.items[i].quality - 1
-          }
+  updateQuality(): Array<Item> {
+    for (const item of this.items) {
+
+      {
+        // The amount that the SellIn of this item should change this day, positive or negative
+        let sellInDelta = -1;
+
+        // Determine how much SellIn should change for this item, given various factors
+        switch (item.name) {
+          case 'Sulfuras, Hand of Ragnaros':
+            sellInDelta = 0;
+            break;
+          default:
+            sellInDelta = -1;
         }
-      } else {
-        if (this.items[i].quality < 50) {
-          this.items[i].quality = this.items[i].quality + 1
-          if (this.items[i].name == 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].sellIn < 11) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1
-              }
+
+        // Apply the SellIn update
+        item.sellIn = item.sellIn + sellInDelta
+      }
+
+      const isPastSellIn = item.sellIn < 0;
+
+      {
+        // The amount that the quality of this item should change this day, positive or negative
+        let qualityDelta = -1;
+
+        // Determine how much quality should change for this item, given various factors
+        switch (item.name) {
+          case 'Sulfuras, Hand of Ragnaros':
+            qualityDelta = 0;
+            break;
+          case 'Aged Brie':
+            if (isPastSellIn) {
+              qualityDelta = 2
+            } else {
+              qualityDelta = 1
             }
-            if (this.items[i].sellIn < 6) {
-              if (this.items[i].quality < 50) {
-                this.items[i].quality = this.items[i].quality + 1
-              }
+            break;
+          case 'Conjured':
+            if (isPastSellIn) {
+              qualityDelta = -4
+            } else {
+              qualityDelta = -2
             }
-          }
+            break;
+          case 'Backstage passes to a TAFKAL80ETC concert':
+            if (item.sellIn < 0) {
+              // After the concert the tickets are worthless
+              qualityDelta = -item.quality
+            } else if (item.sellIn < 5) {
+              // They get really valuable closer to the date
+              qualityDelta = 3
+            } else if (item.sellIn < 10) {
+              // They get more valuable close to the date
+              qualityDelta = 2
+            } else {
+              // Else like normal
+              qualityDelta = 1
+            }
+            break;
+          default:
+            if (isPastSellIn) {
+              qualityDelta = -2
+            } else {
+              qualityDelta = -1
+            }
         }
+
+        // Apply the computed quality update
+        item.quality = Math.min(item.quality + qualityDelta, maximumItemQuality);
       }
-      if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-        this.items[i].sellIn = this.items[i].sellIn - 1;
-      }
-      if (this.items[i].sellIn < 0) {
-        if (this.items[i].name != 'Aged Brie') {
-          if (this.items[i].name != 'Backstage passes to a TAFKAL80ETC concert') {
-            if (this.items[i].quality > 0) {
-              if (this.items[i].name != 'Sulfuras, Hand of Ragnaros') {
-                this.items[i].quality = this.items[i].quality - 1
-              }
-            }
-          } else {
-            this.items[i].quality = this.items[i].quality - this.items[i].quality
-          }
-        } else {
-          if (this.items[i].quality < 50) {
-            this.items[i].quality = this.items[i].quality + 1
-          }
-        }
-      }
+
+      // TODO consider returning a new Item here, not mutating the provided one
     }
 
     return this.items;
